@@ -24,7 +24,7 @@ Security is implemented at the middleware level, intercepting and verifying requ
 ### Role-Based Access Control (RBAC)
 Permissions are enforced using a dedicated `requireRole(allowedRoles[])` middleware wrapper.
 * **`VIEWER`:** Read-only access. Can view the dashboard summaries and their own paginated records. Cannot create, update, or delete data.
-* **`ANALYST`:** Standard access. Can view summaries, view records, and add new financial transactions (Income/Expenses).
+* **`ANALYST`:** Standard access. Can view summaries, view records, and add new financial transactions (Income/Expenses), as well as update existing records.
 * **`ADMIN`:** Full access. Can perform all the above, plus soft-delete records and manage user access.
 
 ### Data Validation (Zod)
@@ -125,7 +125,6 @@ npm start
 
 The API will now be running locally. You can use the provided Postman collection to test the endpoints.
 
-
 ## 6. API Endpoints Overview
 
 Below is a high-level summary of the available REST endpoints. For detailed request/response schemas and testing, please import the included `finance_api_postman_collection.json` file.
@@ -140,7 +139,8 @@ Below is a high-level summary of the available REST endpoints. For detailed requ
 | Method | Endpoint | Description | Access |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/records` | Create a new income/expense record | `ANALYST`, `ADMIN` |
-| `GET` | `/api/records` | Fetch paginated records for the logged-in user | `VIEWER`, `ANALYST`, `ADMIN` |
+| `GET` | `/api/records` | Fetch paginated records (Supports `?type=` and `?category=` filters) | `VIEWER`, `ANALYST`, `ADMIN` |
+| `PUT` | `/api/records/:id` | Update an existing financial record | `ANALYST`, `ADMIN` |
 | `DELETE` | `/api/records/:id` | Soft-delete a specific record | `ADMIN` |
 
 ### Dashboard
