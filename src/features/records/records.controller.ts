@@ -16,13 +16,16 @@ export class RecordsController {
     }
   }
 
-  static async getAll(req: AuthRequest, res: Response): Promise<void> {
+ static async getAll(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.userId;
       
-      // FIX: Safely convert Express query parameters to strings before parsing
-      const page = parseInt(String(req.query.page)) || 1;
-      const limit = parseInt(String(req.query.limit)) || 10;
+      // Explicitly assert the query parameters as strings to satisfy TS
+      const pageStr = req.query.page as string | undefined;
+      const limitStr = req.query.limit as string | undefined;
+
+      const page = pageStr ? parseInt(pageStr, 10) : 1;
+      const limit = limitStr ? parseInt(limitStr, 10) : 10;
 
       const result = await RecordsService.getUserRecords(userId, page, limit);
       res.status(200).json(result);
@@ -34,7 +37,7 @@ export class RecordsController {
   static async delete(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.userId;
-      const recordId = req.params.id; // Extracted from the URL path
+      const recordId = String(req.params.id); // Ensure a string value for TS and runtime
 
       await RecordsService.deleteRecord(recordId, userId);
       res.status(200).json({ message: 'Record deleted successfully' });
