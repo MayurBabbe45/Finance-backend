@@ -21,15 +21,16 @@ export class RecordsController {
     try {
       const userId = req.user!.userId;
       
-      const pageStr = req.query.page as string | undefined;
-      const limitStr = req.query.limit as string | undefined;
+      // Extract pagination
+      const pageStr = req.query.page as unknown as string | undefined;
+      const limitStr = req.query.limit as unknown as string | undefined;
       const page = pageStr ? parseInt(pageStr, 10) : 1;
       const limit = limitStr ? parseInt(limitStr, 10) : 10;
 
-      // BULLETPROOF FIX: Use typeof to guarantee these are single strings
+      // BULLETPROOF FIX: Force TypeScript to accept these as strings
       const filters = {
-        type: typeof req.query.type === 'string' ? req.query.type : undefined,
-        category: typeof req.query.category === 'string' ? req.query.category : undefined
+        type: req.query.type as unknown as string | undefined,
+        category: req.query.category as unknown as string | undefined
       };
 
       const result = await RecordsService.getUserRecords(userId, page, limit, filters);
