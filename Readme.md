@@ -124,3 +124,26 @@ npm start
 ```
 
 The API will now be running locally. You can use the provided Postman collection to test the endpoints.
+
+
+## 6. API Endpoints Overview
+
+Below is a high-level summary of the available REST endpoints. For detailed request/response schemas and testing, please import the included `finance_api_postman_collection.json` file.
+
+### Authentication
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Create a new user account | Public |
+| `POST` | `/api/auth/login` | Authenticate and receive a JWT | Public |
+
+### Financial Records
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/records` | Create a new income/expense record | `ANALYST`, `ADMIN` |
+| `GET` | `/api/records` | Fetch paginated records for the logged-in user | `VIEWER`, `ANALYST`, `ADMIN` |
+| `DELETE` | `/api/records/:id` | Soft-delete a specific record | `ADMIN` |
+
+### Dashboard
+| Method | Endpoint | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/dashboard/summary` | Get aggregated financial metrics and category totals | `VIEWER`, `ANALYST`, `ADMIN` |
