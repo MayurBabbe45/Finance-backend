@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+// --- Enums ---
+enum Role {
+  VIEWER
+  ANALYST
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RecordType {
+  INCOME
+  EXPENSE
+}
+
+// --- Models ---
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  role         Role         @default(VIEWER)
+  status       UserStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  records      FinancialRecord[]
+
+  @@map("users") // Maps the model to a lowercase table name in Postgres
+}
+
+model FinancialRecord {
+  id          String     @id @default(uuid())
+  amount      Int        // Stored in cents (e.g., $10.50 = 1050)
+  type        RecordType
+  category    String
+  date        DateTime
+  notes       String?    // Optional field
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?  // For soft deletes
+
+  // Relations
+  userId      String
+  createdBy   User       @relation(fields: [userId], references: [id])
+
+  @@index([date])       // Index for faster time-series queries (Dashboard API)
+  @@index([userId])     // Index for faster user-specific lookups
+  
+  @@map("financial_records")
+}
