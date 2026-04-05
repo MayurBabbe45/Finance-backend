@@ -7,14 +7,6 @@ const router = Router();
 router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 
-// --- PROTECTED ROUTES TEST ---
-// 1. Requires valid JWT
-// 2. Requires the user to have either the 'ADMIN' or 'ANALYST' role
-router.get(
-  '/me', 
-  verifyToken, 
-  requireRole(['ADMIN', 'ANALYST']), 
-  AuthController.getProfile
-);
+router.get('/me', verifyToken, requireRole(['ADMIN', 'ANALYST']), AuthController.getProfile);
 
 export default router;

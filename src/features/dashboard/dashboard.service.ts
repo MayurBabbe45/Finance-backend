@@ -1,7 +1,6 @@
 import prisma from '../../config/prisma';
 
 export class DashboardService {
-  
   static async getUserSummary(userId: string) {
     const incomeResult = await prisma.financialRecord.aggregate({
       _sum: { amount: true },
@@ -13,7 +12,6 @@ export class DashboardService {
       where: { userId, type: 'EXPENSE', deletedAt: null },
     });
 
-    // NEW: Group expenses by category for the Pie Chart
     const expensesByCategory = await prisma.financialRecord.groupBy({
       by: ['category'],
       where: { userId, type: 'EXPENSE', deletedAt: null },
@@ -24,10 +22,9 @@ export class DashboardService {
     const totalExpense = expenseResult._sum.amount || 0;
     const netBalance = totalIncome - totalExpense;
 
-    // Format the category data for the frontend chart
     const expenseDistribution = expensesByCategory.map(item => ({
       name: item.category,
-      value: item._sum.amount || 0
+      value: item._sum.amount || 0,
     }));
 
     const recentActivity = await prisma.financialRecord.findMany({
@@ -38,7 +35,7 @@ export class DashboardService {
 
     return {
       metrics: { totalIncome, totalExpense, netBalance },
-      expenseDistribution, // <-- Send the new chart data to the frontend
+      expenseDistribution,
       recentActivity,
     };
   }
