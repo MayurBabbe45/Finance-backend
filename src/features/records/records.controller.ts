@@ -17,18 +17,18 @@ export class RecordsController {
   }
 
   static async getAll(req: AuthRequest, res: Response): Promise<void> {
-      try {
-        const userId = req.user!.userId;
-        
-        // Extract pagination params from query string (e.g., ?page=2&limit=5)
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
+    try {
+      const userId = req.user!.userId;
+      
+      // FIX: Safely convert Express query parameters to strings before parsing
+      const page = parseInt(String(req.query.page)) || 1;
+      const limit = parseInt(String(req.query.limit)) || 10;
 
-        const result = await RecordsService.getUserRecords(userId, page, limit);
-        res.status(200).json(result);
-      } catch (error: any) {
-        res.status(500).json({ error: 'Failed to fetch records' });
-      }
+      const result = await RecordsService.getUserRecords(userId, page, limit);
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: 'Failed to fetch records' });
+    }
   }
 
   static async delete(req: AuthRequest, res: Response): Promise<void> {
