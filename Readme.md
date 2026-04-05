@@ -61,3 +61,66 @@ model FinancialRecord {
   userId    String
   user      User      @relation(fields: [userId], references: [id])
 }
+```
+
+## 4. API Documentation & Testing
+
+Detailed API endpoint testing can be done using the provided Postman Collection. See the attached `finance_api_postman_collection.json` file in the repository root for immediate import and execution. 
+
+The collection includes pre-configured routes, request bodies, and an automated script that securely saves the JWT token upon login for seamless testing.
+
+## 5. Local Setup & Installation
+
+Follow these steps to run the backend service locally on your machine.
+
+### Prerequisites
+* **Node.js** (v18 or higher)
+* **npm** or **yarn**
+* A **PostgreSQL** database (Local or Cloud like Neon/Supabase)
+
+### Step 1: Clone the Repository
+```bash
+git clone [https://github.com/yourusername/finance-dashboard-backend.git](https://github.com/yourusername/finance-dashboard-backend.git)
+cd finance-dashboard-backend
+```
+
+### Step 2: Install Dependencies
+```bash
+npm install
+```
+
+### Step 3: Configure Environment Variables
+Create a `.env` file in the root directory and add the following variables. Replace the placeholder values with your actual database credentials and a secure secret.
+```env
+# Server Configuration
+PORT=10000
+
+# Database Connection (PostgreSQL)
+DATABASE_URL="postgresql://user:password@localhost:5432/finance_db"
+
+# JWT Secret for Authentication
+JWT_SECRET="your_super_secret_jwt_key_here"
+```
+
+### Step 4: Database Setup (Prisma)
+Initialize the Prisma client and push the schema to your connected PostgreSQL database to create the required tables (`User` and `FinancialRecord`).
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### Step 5: Start the Server
+You can start the server in development mode (with hot-reloading) or build it for production.
+
+**Development Mode:**
+```bash
+npm run dev
+```
+
+**Production Build:**
+```bash
+npm run build
+npm start
+```
+
+The API will now be running locally. You can use the provided Postman collection to test the endpoints.
