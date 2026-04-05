@@ -21,16 +21,18 @@ export class RecordsController {
     try {
       const userId = req.user!.userId;
       
-      // Extract pagination
-      const pageStr = req.query.page as unknown as string | undefined;
-      const limitStr = req.query.limit as unknown as string | undefined;
-      const page = pageStr ? parseInt(pageStr, 10) : 1;
-      const limit = limitStr ? parseInt(limitStr, 10) : 10;
+      const pageStr = String(req.query.page || '1');
+      const limitStr = String(req.query.limit || '10');
+      const page = parseInt(pageStr, 10);
+      const limit = parseInt(limitStr, 10);
 
-      // BULLETPROOF FIX: Force TypeScript to accept these as strings
+      // Extract explicitly 🕵️‍♂️
+      const typeQuery = req.query.type;
+      const categoryQuery = req.query.category;
+
       const filters = {
-        type: req.query.type as unknown as string | undefined,
-        category: req.query.category as unknown as string | undefined
+        type: typeQuery ? String(typeQuery) : undefined,
+        category: categoryQuery ? String(categoryQuery) : undefined
       };
 
       const result = await RecordsService.getUserRecords(userId, page, limit, filters);
@@ -39,7 +41,6 @@ export class RecordsController {
       res.status(500).json({ error: 'Failed to fetch records' });
     }
   }
-
   static async delete(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.userId;
@@ -54,9 +55,10 @@ export class RecordsController {
 
   static async update(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const recordId = req.params.id;
+      // Your brilliant fix! 🌟
+      const recordId = String(req.params.id); 
       const userId = req.user!.userId;
-      const updateData = req.body; // In a real app, validate this with Zod first!
+      const updateData = req.body;
 
       const updatedRecord = await RecordsService.updateRecord(recordId, userId, updateData);
       res.status(200).json(updatedRecord);
