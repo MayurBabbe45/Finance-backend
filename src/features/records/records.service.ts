@@ -24,29 +24,31 @@ export class RecordsService {
   }
 
   // 2. Get active records for a specific user (with Pagination)
-  static async getUserRecords(userId: string, page: number = 1, limit: number = 10) {
+  static async getUserRecords(
+    userId: string, 
+    page: number, 
+    limit: number, 
+    filters: { type?: string, category?: string } // <-- Add filters parameter
+  ) {
     const skip = (page - 1) * limit;
 
-    const [records, total] = await Promise.all([
-      prisma.financialRecord.findMany({
-        where: { userId, deletedAt: null },
-        orderBy: { date: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.financialRecord.count({
-        where: { userId, deletedAt: null }
-      })
-    ]);
+    // Build the dynamic WHERE clause based on what the user wants to filter
+    const whereClause: any = { userId, deletedAt: null };
+    if (filters.type) whereClause.type = filters.type;
+    if (filters.category) whereClause.category = filters.category;
+
+    const records = await prisma.financialRecord.findMany({
+      where: whereClause, // <-- Pass the dynamic clause here
+      skip,
+      take: limit,
+      orderBy: { date: 'desc' },
+    });
+
+    const total = await prisma.financialRecord.count({ where: whereClause });
 
     return {
       data: records,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      }
+      meta: { total, page, totalPages: Math.ceil(total / limit) },
     };
   }
 
@@ -65,6 +67,21 @@ export class RecordsService {
     return prisma.financialRecord.update({
       where: { id: recordId },
       data: { deletedAt: new Date() },
+    });
+  }
+
+  // Add this inside RecordsService class
+  static async updateRecord(id: string, userId: string, data: any) {
+    // Ensure the record belongs to the user and isn't deleted
+    const existing = await prisma.financialRecord.findFirst({
+      where: { id, userId, deletedAt: null }
+    });
+
+    if (!existing) throw new Error('Record not found or unauthorized');
+
+    return await prisma.financialRecord.update({
+      where: { id },
+      data
     });
   }
 }

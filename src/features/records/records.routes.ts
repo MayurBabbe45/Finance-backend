@@ -25,4 +25,7 @@ router.get('/', RecordsController.getAll);
 // DELETE /api/records/:id -> Soft delete a specific record
 router.delete('/:id', RecordsController.delete);
 
+// Add this line to your routes file
+router.put('/:id', verifyToken, requireRole(['ADMIN', 'ANALYST']), RecordsController.update);
+
 export default router;

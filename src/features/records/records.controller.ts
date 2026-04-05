@@ -16,18 +16,24 @@ export class RecordsController {
     }
   }
 
- static async getAll(req: AuthRequest, res: Response): Promise<void> {
+ // In records.controller.ts (inside the getAll method)
+  static async getAll(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.userId;
       
-      // Explicitly assert the query parameters as strings to satisfy TS
       const pageStr = req.query.page as string | undefined;
       const limitStr = req.query.limit as string | undefined;
-
       const page = pageStr ? parseInt(pageStr, 10) : 1;
       const limit = limitStr ? parseInt(limitStr, 10) : 10;
 
-      const result = await RecordsService.getUserRecords(userId, page, limit);
+      // Extract the new filters from the URL (e.g., ?type=EXPENSE&category=Food)
+      const filters = {
+        type: req.query.type as string | undefined,
+        category: req.query.category as string | undefined
+      };
+
+      // Pass the filters to the service
+      const result = await RecordsService.getUserRecords(userId, page, limit, filters);
       res.status(200).json(result);
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to fetch records' });
@@ -43,6 +49,19 @@ export class RecordsController {
       res.status(200).json({ message: 'Record deleted successfully' });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async update(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const recordId = req.params.id;
+      const userId = req.user!.userId;
+      const updateData = req.body; // In a real app, validate this with Zod first!
+
+      const updatedRecord = await RecordsService.updateRecord(recordId, userId, updateData);
+      res.status(200).json(updatedRecord);
+    } catch (error: any) {
+      res.status(404).json({ error: error.message });
     }
   }
 }
