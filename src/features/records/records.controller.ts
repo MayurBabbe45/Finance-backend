@@ -17,7 +17,7 @@ export class RecordsController {
   }
 
  // In records.controller.ts (inside the getAll method)
-  static async getAll(req: AuthRequest, res: Response): Promise<void> {
+ static async getAll(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.user!.userId;
       
@@ -26,13 +26,12 @@ export class RecordsController {
       const page = pageStr ? parseInt(pageStr, 10) : 1;
       const limit = limitStr ? parseInt(limitStr, 10) : 10;
 
-      // Extract the new filters from the URL (e.g., ?type=EXPENSE&category=Food)
+      // BULLETPROOF FIX: Use typeof to guarantee these are single strings
       const filters = {
-        type: req.query.type as string | undefined,
-        category: req.query.category as string | undefined
+        type: typeof req.query.type === 'string' ? req.query.type : undefined,
+        category: typeof req.query.category === 'string' ? req.query.category : undefined
       };
 
-      // Pass the filters to the service
       const result = await RecordsService.getUserRecords(userId, page, limit, filters);
       res.status(200).json(result);
     } catch (error: any) {
